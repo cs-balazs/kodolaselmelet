@@ -84,12 +84,10 @@ mod tests {
         ];
 
         for prime in primes {
-            println!("Testing {}", prime);
             assert!(miller_rabin(&Integer::from_str(&prime).unwrap()))
         }
 
         for non_prime in non_primes {
-            println!("Testing {}", non_prime);
             assert!(!miller_rabin(&Integer::from_str(&non_prime).unwrap()))
         }
     }
