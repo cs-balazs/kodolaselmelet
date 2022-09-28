@@ -1,4 +1,6 @@
-pub mod errors;
-pub mod exponentiation;
-pub mod primality;
-pub mod rsa;
+mod errors;
+mod exponentiation;
+mod primality;
+mod rsa;
+
+pub use rsa::*;

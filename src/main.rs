@@ -1,4 +1,4 @@
-use kodolaselmelet::rsa::{generate_keys, sign, verify};
+use kodolaselmelet::{generate_keys, sign, verify};
 use rug::Integer;
 use std::str::FromStr;
 
