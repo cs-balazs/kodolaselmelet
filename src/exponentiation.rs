@@ -36,7 +36,7 @@ mod tests {
     use rug::Integer;
 
     #[test]
-    fn test() {
+    fn binary_exponentiation() {
         let cases: [(u64, u64, u64, u64); 6] = [
             (212872347263547826, 0, 2323234, 1),
             (212, 9, 4, 0),

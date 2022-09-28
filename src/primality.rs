@@ -28,7 +28,7 @@ pub fn miller_rabin(n: &Integer) -> bool {
     let k = n_factors(&n_minus_one);
 
     let mut exp = Integer::from(0);
-    exp.set_bit((k).to_u32_wrapping(), true);
+    exp.set_bit(k.to_u32_wrapping(), true);
 
     let r = (&n_minus_one / &exp).complete();
 
@@ -63,7 +63,7 @@ mod tests {
     use std::str::FromStr;
 
     #[test]
-    fn test() {
+    fn miller_rabin_primality() {
         let primes = [
             "2",
             "3",
