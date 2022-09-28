@@ -136,6 +136,16 @@ pub fn decrypt_ascii(c: &Integer, keys: &KeyPair) -> String {
     bigint_to_string(&bigint_result)
 }
 
+pub fn sign(message: &str, keys: &KeyPair) -> Integer {
+    let c = &str_to_bigint(message);
+    binary(c, &keys.privkey, &keys.pubkey.n)
+}
+
+pub fn verify(signature: &Integer, pubkey: &PublicKey) -> String {
+    let bigint_result = binary(signature, &pubkey.e, &pubkey.n);
+    bigint_to_string(&bigint_result)
+}
+
 #[cfg(test)]
 mod tests {
     use crate::rsa::{bigint_to_string, str_to_bigint};

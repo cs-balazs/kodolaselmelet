@@ -1,4 +1,4 @@
-use kodolaselmelet::rsa::{decrypt, encrypt, generate_keys};
+use kodolaselmelet::rsa::{generate_keys, sign, verify};
 use rug::Integer;
 use std::str::FromStr;
 
@@ -8,14 +8,13 @@ fn main() {
         &Integer::from_str("720714523785889173191354177371045760242297569261140563779852769239494236607878516643196470647354242607091192426841274197616849531050433864775643197014575443597601363224005309228633349876258651710793439200905812200126442288004063350129579058857449170104638055254079167970988227634912890827343610996771").unwrap(),
     ).unwrap();
 
-    dbg!(&keys);
+    let message = String::from("\"{ \"password\": \"almafa12345\" }\"");
+    let signature = sign(&message, &keys);
 
-    let m = Integer::from(123456789);
-    dbg!(&m);
+    dbg!(&message);
+    dbg!(&signature);
 
-    let encrypted = encrypt(&m, &keys.pubkey);
-    dbg!(&encrypted);
+    let reconstructed = verify(&signature, &keys.pubkey);
 
-    let decrypted = decrypt(&encrypted, &keys);
-    dbg!(&decrypted);
+    dbg!(message == reconstructed);
 }
