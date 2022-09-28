@@ -1,5 +1,5 @@
 use crate::exponentiation::binary;
-use rug::{rand::RandState, Integer};
+use rug::{rand::RandState, Complete, Integer};
 use std::ops::AddAssign;
 
 fn n_factors(n: &Integer) -> Integer {
@@ -27,7 +27,7 @@ pub fn miller_rabin(n: &Integer) -> bool {
     let n_minus_one = n - Integer::from(1);
     let k = n_factors(&n_minus_one);
     let mut exp = binary(&Integer::from(2), &k, None);
-    let r = &n_minus_one / exp.clone();
+    let r = (&n_minus_one / &exp).complete();
 
     let mut rng = RandState::new();
     let a = n - Integer::from(2);
@@ -35,8 +35,7 @@ pub fn miller_rabin(n: &Integer) -> bool {
     a.add_assign(Integer::from(1));
 
     while exp > 0 {
-        let expp = r.clone() * exp.clone();
-        let res = binary(&a, &expp, Some(n));
+        let res = binary(&a, &(&r * &exp).complete(), Some(n));
 
         if res == 1 {
             exp >>= 1;
