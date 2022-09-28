@@ -12,7 +12,7 @@ fn bezout_coefficients(a: &Integer, b: &Integer) -> (Integer, Integer) {
     let mut prev_t = Integer::from(0);
     let mut t = Integer::from(1);
 
-    while &remainder != &0 {
+    while remainder != 0 {
         quotient = (&prev_remainder / &remainder).complete();
         prev_remainder = &prev_remainder - (&quotient * &remainder).complete();
         swap(&mut remainder, &mut prev_remainder);
@@ -51,7 +51,7 @@ pub fn generate_keys(p: &Integer, q: &Integer) -> Result<KeyPair, NotPrimeError>
                 .random_below(&mut rng)
                 .add(Integer::from(1));
 
-            if e.clone().gcd(&lambda_n) == Integer::from(1) {
+            if e.clone().gcd(&lambda_n) == 1 {
                 break;
             }
         }

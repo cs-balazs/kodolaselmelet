@@ -16,7 +16,7 @@ fn main() {
     dbg!(&signature);
     dbg!(&reconstructed);
 
-    if &message == &reconstructed {
+    if message == reconstructed {
         println!("Successfully verified message!");
     }
 }
