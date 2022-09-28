@@ -2,7 +2,7 @@ use crate::exponentiation::binary;
 use rug::{rand::RandState, Complete, Integer};
 use std::ops::Add;
 
-fn n_factors(n: &Integer) -> Integer {
+fn two_factors(n: &Integer) -> Integer {
     if n % Integer::from(2) == 1 {
         return Integer::from(0);
     }
@@ -25,7 +25,7 @@ pub fn miller_rabin(n: &Integer) -> bool {
     }
 
     let n_minus_one = n - Integer::from(1);
-    let k = n_factors(&n_minus_one);
+    let k = two_factors(&n_minus_one);
 
     let mut exp = Integer::from(0);
     exp.set_bit(k.to_u32_wrapping(), true);

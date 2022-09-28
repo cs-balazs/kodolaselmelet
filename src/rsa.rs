@@ -59,6 +59,8 @@ pub fn generate_keys(p: &Integer, q: &Integer) -> Result<KeyPair, NotPrimeError>
     };
 
     let (mut x, mut y) = bezout_coefficients(&lambda_n, &e);
+
+    // For making sure, they are positive
     x = ((x % &lambda_n) + &lambda_n) % &lambda_n;
     y = ((y % &lambda_n) + &lambda_n) % &lambda_n;
 
@@ -164,7 +166,6 @@ mod tests {
         if let Ok(_) = keys {
             assert!(false);
         }
-        assert!(true);
     }
 
     #[test]
