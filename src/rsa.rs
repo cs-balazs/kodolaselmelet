@@ -73,11 +73,11 @@ pub fn get_keys(p: &Integer, q: &Integer) -> Result<KeyPair, NotPrimeError> {
 }
 
 pub fn encrypt(m: &Integer, pubkey: &PublicKey) -> Integer {
-    binary(m, &pubkey.e, Some(&pubkey.n))
+    binary(m, &pubkey.e, &pubkey.n)
 }
 
 pub fn decrypt(c: &Integer, keys: &KeyPair) -> Integer {
-    binary(c, &keys.privkey, Some(&keys.pubkey.n))
+    binary(c, &keys.privkey, &keys.pubkey.n)
 }
 
 fn str_to_bigint(s: &str) -> Integer {
@@ -128,11 +128,11 @@ fn bigint_to_string(bigint: &Integer) -> String {
 
 pub fn encrypt_ascii(m: String, pubkey: &PublicKey) -> Integer {
     let m = &str_to_bigint(m.as_str());
-    binary(m, &pubkey.e, Some(&pubkey.n))
+    binary(m, &pubkey.e, &pubkey.n)
 }
 
 pub fn decrypt_ascii(c: &Integer, keys: &KeyPair) -> String {
-    let bigint_result = binary(c, &keys.privkey, Some(&keys.pubkey.n));
+    let bigint_result = binary(c, &keys.privkey, &keys.pubkey.n);
     bigint_to_string(&bigint_result)
 }
 

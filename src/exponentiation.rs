@@ -1,7 +1,6 @@
-use rug::Integer;
-use std::ops::MulAssign;
+use rug::{Complete, Integer};
 
-pub fn binary(base: &Integer, exponent: &Integer, modulus: Option<&Integer>) -> Integer {
+pub fn binary(base: &Integer, exponent: &Integer, modulus: &Integer) -> Integer {
     if *exponent == 0 {
         return Integer::from(1);
     }
@@ -11,32 +10,24 @@ pub fn binary(base: &Integer, exponent: &Integer, modulus: Option<&Integer>) -> 
     }
 
     let mut result = base.clone();
-    if let Some(modul) = modulus {
-        result %= modul;
-    }
-    let mut exp = Integer::from(2);
+    result %= modulus;
+    let mut exp = exponent.clone();
+    let mut extra = Integer::from(1);
 
-    while exp <= *exponent {
-        result.mul_assign(result.clone());
-        if let Some(modul) = modulus {
-            result %= modul;
-        }
-        exp <<= 1;
-    }
-
-    exp >>= 1;
-
-    if exp < *exponent {
-        let expo = exponent - exp;
-        let rest = binary(base, &expo, modulus);
-        result = &result * rest;
-
-        if let Some(modul) = modulus {
-            result %= modul;
+    while &exp > &Integer::from(1) {
+        if (&exp % 2u32).complete() == Integer::from(0) {
+            result *= result.clone();
+            result %= modulus;
+            exp /= 2;
+        } else {
+            extra *= &result;
+            result *= result.clone();
+            result %= modulus;
+            exp = (exp - 1) / 2;
         }
     }
 
-    result
+    (result * extra) % modulus
 }
 
 #[cfg(test)]
@@ -65,7 +56,7 @@ mod tests {
                 binary(
                     &Integer::from(base),
                     &Integer::from(exponent),
-                    Some(&Integer::from(modulus))
+                    &Integer::from(modulus)
                 ),
                 Integer::from(expected_result)
             );

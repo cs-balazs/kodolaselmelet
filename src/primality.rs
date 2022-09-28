@@ -38,7 +38,7 @@ pub fn miller_rabin(n: &Integer) -> bool {
         .add(Integer::from(1));
 
     while &exp > &0 {
-        let res = binary(&a, &(&r * &exp).complete(), Some(n));
+        let res = binary(&a, &(&r * &exp).complete(), n);
 
         if res == 1 {
             exp >>= 1;
