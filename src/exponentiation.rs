@@ -14,8 +14,8 @@ pub fn binary(base: &Integer, exponent: &Integer, modulus: &Integer) -> Integer 
     let mut exp = exponent.clone();
     let mut extra = Integer::from(1);
 
-    while &exp > &Integer::from(1) {
-        if (&exp % 2u32).complete() == Integer::from(0) {
+    while exp > 1 {
+        if (&exp % 2u32).complete() == 0 {
             result *= result.clone();
             result %= modulus;
             exp /= 2;

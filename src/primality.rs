@@ -37,7 +37,7 @@ pub fn miller_rabin(n: &Integer) -> bool {
         .random_below(&mut rng)
         .add(Integer::from(1));
 
-    while &exp > &0 {
+    while exp > 0 {
         let res = binary(&a, &(&r * &exp).complete(), n);
 
         if res == 1 {

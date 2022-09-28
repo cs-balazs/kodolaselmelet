@@ -8,7 +8,7 @@ fn extended_gdc(a: &Integer, b: &Integer) -> (Integer, Integer) {
     let (mut old_s, mut s) = (Integer::from(1), Integer::from(0));
     let (mut old_t, mut t) = (Integer::from(0), Integer::from(1));
 
-    while r.clone() != Integer::from(0) {
+    while r.clone() != 0 {
         let qoutient = (&old_r / &r).complete();
         let old_rr = old_r.clone();
         old_r = r.clone();
@@ -48,7 +48,7 @@ pub fn generate_keys(p: &Integer, q: &Integer) -> Result<KeyPair, NotPrimeError>
     let mut e = (&lambda_n - Integer::from(1))
         .random_below(&mut rng)
         .add(Integer::from(1));
-    while e.clone().gcd(&lambda_n) != Integer::from(1) {
+    while e.clone().gcd(&lambda_n) != 1 {
         e = (&lambda_n - Integer::from(1))
             .random_below(&mut rng)
             .add(Integer::from(1))
@@ -58,7 +58,7 @@ pub fn generate_keys(p: &Integer, q: &Integer) -> Result<KeyPair, NotPrimeError>
 
     let x_check = (&x * &e).complete() % &lambda_n;
 
-    let mut d = if x_check == Integer::from(1) || x_check == Integer::from(1) - &lambda_n {
+    let mut d = if x_check == 1 || x_check == Integer::from(1) - &lambda_n {
         x
     } else {
         y
