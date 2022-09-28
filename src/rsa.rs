@@ -56,10 +56,6 @@ pub fn get_keys(p: &Integer, q: &Integer) -> Result<KeyPair, NotPrimeError> {
 
     let (x, y) = extended_gdc(&lambda_n, &e);
 
-    // dbg!(&lambda_n);
-    // dbg!((&x * &e).complete() % &lambda_n);
-    // dbg!((&y * &e).complete() % &lambda_n);
-
     let x_check = (&x * &e).complete() % &lambda_n;
 
     let mut d = if x_check == Integer::from(1) || x_check == Integer::from(1) - &lambda_n {
