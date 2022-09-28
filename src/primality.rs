@@ -1,16 +1,16 @@
 use crate::exponentiation::binary;
 use rug::{rand::RandState, Complete, Integer};
-use std::ops::AddAssign;
+use std::ops::Add;
 
 fn n_factors(n: &Integer) -> Integer {
-    if n % Integer::from(2u64) == 1 {
-        return Integer::from(0u64);
+    if n % Integer::from(2) == 1 {
+        return Integer::from(0);
     }
-    let mut exp = Integer::from(1u64);
+    let mut exp = Integer::from(1);
     let mut n_clone = n.clone();
-    while &n_clone % Integer::from(2u64) == 0 {
-        n_clone /= Integer::from(2u64);
-        exp += Integer::from(1u64);
+    while &n_clone % Integer::from(2) == 0 {
+        n_clone /= Integer::from(2);
+        exp += Integer::from(1);
     }
 
     exp - 1
@@ -26,15 +26,18 @@ pub fn miller_rabin(n: &Integer) -> bool {
 
     let n_minus_one = n - Integer::from(1);
     let k = n_factors(&n_minus_one);
-    let mut exp = binary(&Integer::from(2), &k, None);
+
+    let mut exp = Integer::from(0);
+    exp.set_bit((k).to_u32_wrapping(), true);
+
     let r = (&n_minus_one / &exp).complete();
 
     let mut rng = RandState::new();
-    let a = n - Integer::from(2);
-    let mut a = a.random_below(&mut rng);
-    a.add_assign(Integer::from(1));
+    let a = (n - Integer::from(2))
+        .random_below(&mut rng)
+        .add(Integer::from(1));
 
-    while exp > 0 {
+    while &exp > &0 {
         let res = binary(&a, &(&r * &exp).complete(), Some(n));
 
         if res == 1 {
