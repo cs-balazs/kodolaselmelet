@@ -1,4 +1,4 @@
-use crate::exponentiation::binary;
+use crate::{errors::NotPrimeError, exponentiation::binary, primality::miller_rabin};
 use rug::{rand::RandState, Complete, Integer};
 use std::ops::Add;
 
@@ -38,7 +38,10 @@ pub struct KeyPair {
     pub privkey: Integer,
 }
 
-pub fn get_keys(p: &Integer, q: &Integer) -> KeyPair {
+pub fn get_keys(p: &Integer, q: &Integer) -> Result<KeyPair, NotPrimeError> {
+    if !miller_rabin(p) || !miller_rabin(q) {
+        return Err(NotPrimeError);
+    }
     let n = (p * q).complete();
     let lambda_n = (p - Integer::from(1)).lcm(&(q - Integer::from(1)));
     let mut rng = RandState::new();
@@ -70,7 +73,7 @@ pub fn get_keys(p: &Integer, q: &Integer) -> KeyPair {
     }
 
     let pubkey = PublicKey { n, e };
-    KeyPair { pubkey, privkey: d }
+    Ok(KeyPair { pubkey, privkey: d })
 }
 
 pub fn encrypt(m: &Integer, pubkey: &PublicKey) -> Integer {
@@ -89,6 +92,15 @@ mod tests {
 
     #[test]
     fn test() {
+        let keys = get_keys(
+            &Integer::from_str("4").unwrap(),
+            &Integer::from_str("7").unwrap(),
+        );
+
+        if let Ok(_) = keys {
+            assert!(false);
+        }
+
         let messages = [
             Integer::from_str("2635762534782543872534872543872534825487").unwrap(),
             Integer::from_str("7346836458").unwrap(),
@@ -101,7 +113,7 @@ mod tests {
         let keys = get_keys(
             &Integer::from_str("691826793068458536074208355133049291478531419048941848702313338608164245322895819651978896147719733508565736653903956362824739385732131890969671002559232884926169408928219198718725581288282235796285353558468100964394244945998514012276023216327756247926340827782709941975233386336751116416100943416897").unwrap(),
             &Integer::from_str("720714523785889173191354177371045760242297569261140563779852769239494236607878516643196470647354242607091192426841274197616849531050433864775643197014575443597601363224005309228633349876258651710793439200905812200126442288004063350129579058857449170104638055254079167970988227634912890827343610996771").unwrap(),
-        );
+        ).unwrap();
 
         for message in messages {
             let encrypted = encrypt(&message, &keys.pubkey);
