@@ -1,29 +1,28 @@
 use crate::{errors::NotPrimeError, exponentiation::binary, primality::miller_rabin};
 use rug::{rand::RandState, Complete, Integer};
-use std::{ops::Add, str::FromStr};
+use std::{mem::swap, ops::Add, str::FromStr};
 
-// TODO: Reimplement this
-fn extended_gcd(a: &Integer, b: &Integer) -> (Integer, Integer) {
-    let (mut old_r, mut r) = (a.clone(), b.clone());
-    let (mut old_s, mut s) = (Integer::from(1), Integer::from(0));
-    let (mut old_t, mut t) = (Integer::from(0), Integer::from(1));
+// https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Example
+fn bezout_coefficients(a: &Integer, b: &Integer) -> (Integer, Integer) {
+    let mut quotient: Integer;
+    let mut prev_remainder = a.clone();
+    let mut remainder = b.clone();
+    let mut prev_s = Integer::from(1);
+    let mut s = Integer::from(0);
+    let mut prev_t = Integer::from(0);
+    let mut t = Integer::from(1);
 
-    while r.clone() != 0 {
-        let qoutient = (&old_r / &r).complete();
-        let old_rr = old_r.clone();
-        old_r = r.clone();
-        r = old_rr - &qoutient * r;
-
-        let old_ss = old_s.clone();
-        old_s = s.clone();
-        s = old_ss - &qoutient * s;
-
-        let old_tt = old_t.clone();
-        old_t = t.clone();
-        t = old_tt - &qoutient * t;
+    while &remainder != &0 {
+        quotient = (&prev_remainder / &remainder).complete();
+        prev_remainder = &prev_remainder - (&quotient * &remainder).complete();
+        swap(&mut remainder, &mut prev_remainder);
+        prev_s = &prev_s - (&quotient * &s).complete();
+        swap(&mut s, &mut prev_s);
+        prev_t = &prev_t - (&quotient * &t).complete();
+        swap(&mut t, &mut prev_t);
     }
 
-    (old_s, old_t)
+    (prev_s, prev_t)
 }
 
 #[derive(Debug)]
@@ -59,19 +58,15 @@ pub fn generate_keys(p: &Integer, q: &Integer) -> Result<KeyPair, NotPrimeError>
         e
     };
 
-    let (x, y) = extended_gcd(&lambda_n, &e);
+    let (mut x, mut y) = bezout_coefficients(&lambda_n, &e);
+    x = ((x % &lambda_n) + &lambda_n) % &lambda_n;
+    y = ((y % &lambda_n) + &lambda_n) % &lambda_n;
 
-    let x_check = (&x * &e).complete() % &lambda_n;
-
-    let mut d = if x_check == 1 || x_check == Integer::from(1) - &lambda_n {
+    let d = if (&x * &e).complete() % &lambda_n == 1 {
         x
     } else {
         y
     };
-
-    while d < 0 {
-        d += &lambda_n;
-    }
 
     let pubkey = PublicKey { n, e };
     Ok(KeyPair { pubkey, privkey: d })
