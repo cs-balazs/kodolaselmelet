@@ -3,7 +3,7 @@ use rug::{rand::RandState, Complete, Integer};
 use std::{ops::Add, str::FromStr};
 
 // TODO: Reimplement this
-fn extended_gdc(a: &Integer, b: &Integer) -> (Integer, Integer) {
+fn extended_gcd(a: &Integer, b: &Integer) -> (Integer, Integer) {
     let (mut old_r, mut r) = (a.clone(), b.clone());
     let (mut old_s, mut s) = (Integer::from(1), Integer::from(0));
     let (mut old_t, mut t) = (Integer::from(0), Integer::from(1));
@@ -45,16 +45,21 @@ pub fn generate_keys(p: &Integer, q: &Integer) -> Result<KeyPair, NotPrimeError>
     let n = (p * q).complete();
     let lambda_n = (p - Integer::from(1)).lcm(&(q - Integer::from(1)));
     let mut rng = RandState::new();
-    let mut e = (&lambda_n - Integer::from(1))
-        .random_below(&mut rng)
-        .add(Integer::from(1));
-    while e.clone().gcd(&lambda_n) != 1 {
-        e = (&lambda_n - Integer::from(1))
-            .random_below(&mut rng)
-            .add(Integer::from(1))
-    }
+    let e: Integer = {
+        let mut e: Integer;
+        loop {
+            e = (&lambda_n - Integer::from(1))
+                .random_below(&mut rng)
+                .add(Integer::from(1));
 
-    let (x, y) = extended_gdc(&lambda_n, &e);
+            if e.clone().gcd(&lambda_n) == Integer::from(1) {
+                break;
+            }
+        }
+        e
+    };
+
+    let (x, y) = extended_gcd(&lambda_n, &e);
 
     let x_check = (&x * &e).complete() % &lambda_n;
 
