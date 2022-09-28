@@ -41,7 +41,7 @@ pub fn binary(base: &Integer, exponent: &Integer, modulus: Option<&Integer>) -> 
 
 #[cfg(test)]
 mod tests {
-    use crate::exponentiation::binary;
+    use super::binary;
     use rug::Integer;
 
     #[test]

@@ -55,7 +55,7 @@ pub fn miller_rabin(n: &Integer) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::primality::miller_rabin;
+    use super::miller_rabin;
     use rug::Integer;
     use std::str::FromStr;
 

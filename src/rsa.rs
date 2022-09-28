@@ -83,12 +83,9 @@ pub fn decrypt(c: &Integer, keys: &KeyPair) -> Integer {
 
 #[cfg(test)]
 mod tests {
+    use super::{decrypt, encrypt, get_keys};
     use rug::Integer;
     use std::str::FromStr;
-
-    use crate::rsa::decrypt;
-
-    use super::{encrypt, get_keys};
 
     #[test]
     fn test() {
