@@ -2,6 +2,7 @@ use crate::exponentiation::binary;
 use rug::{rand::RandState, Complete, Integer};
 use std::ops::Add;
 
+// TODO: Reimplement this
 fn extended_gdc(a: &Integer, b: &Integer) -> (Integer, Integer) {
     let (mut old_r, mut r) = (a.clone(), b.clone());
     let (mut old_s, mut s) = (Integer::from(1), Integer::from(0));
