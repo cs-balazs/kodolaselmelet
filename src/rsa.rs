@@ -46,7 +46,8 @@ pub fn generate_keys(
         return Err(NotPrimeError);
     }
     let n = (p * q).complete();
-    let lambda_n = (p - Integer::from(1)).lcm(&(q - Integer::from(1)));
+    let (_, _, gcd) = bezout_coefficients(&(p - Integer::from(1)), &(q - Integer::from(1)));
+    let lambda_n = ((p - Integer::from(1)) * (q - Integer::from(1))) / gcd;
     let mut rng = RandState::new();
     let e: Integer = if let Some(param_e) = e {
         param_e.clone()
