@@ -3,7 +3,7 @@ use rug::{rand::RandState, Complete, Integer};
 use std::{mem::swap, ops::Add, str::FromStr};
 
 // https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Example
-fn bezout_coefficients(a: &Integer, b: &Integer) -> (Integer, Integer) {
+fn bezout_coefficients(a: &Integer, b: &Integer) -> (Integer, Integer, Integer) {
     let mut quotient: Integer;
     let mut prev_remainder = a.clone();
     let mut remainder = b.clone();
@@ -22,7 +22,7 @@ fn bezout_coefficients(a: &Integer, b: &Integer) -> (Integer, Integer) {
         swap(&mut t, &mut prev_t);
     }
 
-    (prev_s, prev_t)
+    (prev_s, prev_t, prev_remainder)
 }
 
 #[derive(Debug)]
@@ -57,14 +57,15 @@ pub fn generate_keys(
                 .random_below(&mut rng)
                 .add(Integer::from(1));
 
-            if e.clone().gcd(&lambda_n) == 1 {
+            let (_, _, gcd) = bezout_coefficients(&e, &lambda_n);
+            if gcd == 1 {
                 break;
             }
         }
         e
     };
 
-    let (mut x, mut y) = bezout_coefficients(&lambda_n, &e);
+    let (mut x, mut y, _) = bezout_coefficients(&lambda_n, &e);
 
     // For making sure, they are positive
     x = ((x % &lambda_n) + &lambda_n) % &lambda_n;
