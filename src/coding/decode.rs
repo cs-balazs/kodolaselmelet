@@ -93,3 +93,160 @@ pub fn syndrome_decoder<'a>(
 
     Err((String::from("Failed to decode"), None))
 }
+
+lazy_static! {
+    static ref GENERATOR_MATRIX_1: Vec<Vec<i8>> = vec![
+        vec![1, 1, 0, 1, 0, 1],
+        vec![0, 1, 0, 1, 1, 1],
+        vec![1, 1, 1, 1, 0, 1],
+        vec![1, 0, 1, 1, 1, 0],
+    ];
+    static ref GENERATOR_MATRIX_2: Vec<Vec<i8>> = vec![vec![1, 0, 1, 2], vec![0, 1, 1, 1]];
+    static ref GENERATOR_MATRIX_3: Vec<Vec<i8>> = vec![
+        vec![1, 0, 0, 1, 0],
+        vec![0, 1, 0, 1, 1],
+        vec![0, 0, 1, 1, 0],
+    ];
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::coding::decode::{
+        GENERATOR_MATRIX_1, GENERATOR_MATRIX_2, GENERATOR_MATRIX_3, GOLAY_GENERATOR_MATRIX,
+    };
+
+    #[test]
+    fn invalid_input_dimensions() {
+        let result = super::syndrome_decoder(&vec![2, 0, 2, 0, 2, 1, 0], &GENERATOR_MATRIX_1, 2);
+        assert!(result.is_err());
+        let (error_msg, results) = result.unwrap_err();
+        assert!(results.is_none());
+        assert_eq!(error_msg, "Recieved invalid generator matrix!");
+    }
+
+    #[test]
+    fn non_gauss_eliminated_matrix_success_2_finite_field_one_error_bit() {
+        let result = super::syndrome_decoder(&vec![2, 0, 2, 0, 2, 1], &GENERATOR_MATRIX_1, 2);
+        assert!(result.is_ok());
+        let (decoded_msg, errors) = result.unwrap();
+        assert_eq!(decoded_msg, vec![0, 0, 0, 0]);
+        assert_eq!(errors, vec![0, 0, 0, 0, 0, 1]);
+    }
+
+    #[test]
+    fn gauss_eliminated_matrix_success_3_finite_field_no_error_bits() {
+        let result = super::syndrome_decoder(&vec![2, 1, 0, 2], &GENERATOR_MATRIX_2, 3);
+        assert!(result.is_ok());
+        let (decoded_msg, errors) = result.unwrap();
+        assert_eq!(decoded_msg, vec![2, 1]);
+        assert_eq!(errors.len(), 0);
+    }
+
+    #[test]
+    fn gauss_eliminated_matrix_error_2_finite_field_3_closest_codewords() {
+        let result = super::syndrome_decoder(&vec![0, 1, 0, 0, 1], &GENERATOR_MATRIX_3, 2);
+        assert!(result.is_err());
+        let (error_msg, results) = result.unwrap_err();
+        assert!(results.is_some());
+        let results = results.unwrap();
+        assert_eq!(error_msg, "Multiple closest codewords found");
+
+        let expected_closest_codewords = vec![
+            vec![1, 0, 0, 0, 0],
+            vec![0, 0, 0, 1, 0],
+            vec![0, 0, 1, 0, 0],
+        ];
+
+        assert_eq!(results.len(), expected_closest_codewords.len());
+        assert!(results
+            .iter()
+            .all(|item| expected_closest_codewords.contains(item)));
+    }
+
+    #[test]
+    fn gauss_eliminated_matrix_success_2_finite_field_one_error_bits() {
+        let result = super::syndrome_decoder(&vec![1, 0, 0, 0, 1], &GENERATOR_MATRIX_3, 2);
+        assert!(result.is_ok());
+        let (decoded_msg, errors) = result.unwrap();
+        assert_eq!(decoded_msg, vec![1, 1, 0]);
+        assert_eq!(errors, vec![0, 1, 0, 0, 0]);
+    }
+
+    #[test]
+    fn golay_two_error_bits() {
+        let result = super::syndrome_decoder(
+            &vec![
+                1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0,
+            ],
+            &GOLAY_GENERATOR_MATRIX,
+            2,
+        );
+        assert!(result.is_ok());
+        let (decoded_msg, errors) = result.unwrap();
+        assert_eq!(decoded_msg, vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]);
+        assert_eq!(
+            errors,
+            vec![1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        );
+    }
+
+    #[test]
+    fn golay_three_error_bits() {
+        let result = super::syndrome_decoder(
+            &vec![
+                1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0,
+            ],
+            &GOLAY_GENERATOR_MATRIX,
+            2,
+        );
+        assert!(result.is_ok());
+        let (decoded_msg, errors) = result.unwrap();
+        assert_eq!(decoded_msg, vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]);
+        assert_eq!(
+            errors,
+            vec![1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        );
+    }
+
+    #[test]
+    fn golay_four_error_bits_should_fail() {
+        let result = super::syndrome_decoder(
+            &vec![
+                1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0,
+            ],
+            &GOLAY_GENERATOR_MATRIX,
+            2,
+        );
+        assert!(result.is_err());
+        let (error_msg, results) = result.unwrap_err();
+        assert!(results.is_some());
+        let results = results.unwrap();
+        assert_eq!(error_msg, "Multiple closest codewords found");
+
+        let expected_closest_codewords = vec![
+            vec![
+                0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0,
+            ],
+            vec![
+                0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+            ],
+            vec![
+                0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+            ],
+            vec![
+                0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1,
+            ],
+            vec![
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0,
+            ],
+            vec![
+                1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ],
+        ];
+
+        assert_eq!(results.len(), expected_closest_codewords.len());
+        assert!(results
+            .iter()
+            .all(|item| expected_closest_codewords.contains(item)));
+    }
+}
