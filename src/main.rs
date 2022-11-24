@@ -1,4 +1,4 @@
-use kodolaselmelet::coding;
+use kodolaselmelet::coding::{self, decode::GOLAY_GENERATOR_MATRIX};
 
 fn main() {
     let generator_matrix = vec![
