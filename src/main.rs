@@ -1,23 +1,261 @@
-use kodolaselmelet::{generate_keys, sign, verify};
-use rug::Integer;
-use std::str::FromStr;
+use kodolaselmelet::coding;
 
 fn main() {
-    let bob = generate_keys(
-        &Integer::from_str("691826793068458536074208355133049291478531419048941848702313338608164245322895819651978896147719733508565736653903956362824739385732131890969671002559232884926169408928219198718725581288282235796285353558468100964394244945998514012276023216327756247926340827782709941975233386336751116416100943416897").unwrap(),
-        &Integer::from_str("720714523785889173191354177371045760242297569261140563779852769239494236607878516643196470647354242607091192426841274197616849531050433864775643197014575443597601363224005309228633349876258651710793439200905812200126442288004063350129579058857449170104638055254079167970988227634912890827343610996771").unwrap(),
-        Some(&Integer::from_str("61522379386086601834597890284249428903164928191931540562781625027662247870371869389205031620230087246305929277329610968069068089738313324428685504320223914190745010016383512625829887040628273165829500239872455056910388733968760219412696838601024811884713461717600597346727863514871587314753593494151481023925082291916519224485666616052170707505114272824913734417794935563099653005771541380669743914093327391375462759993298984146285855633737087936407735688768202000071214365340940054347669207711211974579861688764169618479021351396368750874383115243705461027615524323267092712788269357491147306201441").unwrap())
-    ).unwrap();
+    let generator_matrix = vec![
+        vec![1, 0, 0, 0, 0, 1],
+        vec![0, 1, 0, 0, 1, 0],
+        vec![0, 0, 1, 0, 1, 1],
+        vec![0, 0, 0, 1, 1, 1],
+    ];
 
-    let message = String::from("Hi! It's me Bob!");
-    let signature = sign(&message, &bob);
-    let reconstructed = verify(&signature, &bob.pubkey);
+    let generator_matrix = vec![
+        vec![1, 1, 0, 1, 0, 1],
+        vec![0, 1, 0, 1, 1, 1],
+        vec![1, 1, 1, 1, 0, 1],
+        vec![1, 0, 1, 1, 1, 0],
+    ];
 
-    dbg!(&message);
-    dbg!(&signature);
-    dbg!(&reconstructed);
+    let input_vec = vec![2, 0, 2, 0, 2, 1];
 
-    if message == reconstructed {
-        println!("Successfully verified message!");
+    let res = coding::decode::syndrome_decoder(&input_vec, &generator_matrix, 2);
+
+    match res {
+        Err((error_msg, results)) => {
+            println!("[DECODING ERROR]");
+            println!("[ERROR MESSAGE] - {}", error_msg);
+            if let Some(multiple_results) = results {
+                println!("[POSSIBLE ERRORS] - {:?}", multiple_results);
+            }
+        }
+        Ok((decoded, err_mask)) => {
+            println!("[DECODING SUCCESSFUL]");
+            println!("[DECODED MESSAGE] - {:?}", decoded);
+            if err_mask.len() == 0 {
+                println!("[NO ERROR WAS PRESENT]")
+            } else {
+                println!("[ERROR BITS] - {:?}", err_mask);
+            }
+        }
+    }
+
+    println!("-------------");
+
+    let generator_matrix = vec![vec![1, 0, 1, 2], vec![0, 1, 1, 1]];
+
+    let input_vec = vec![2, 1, 0, 2];
+
+    let res = coding::decode::syndrome_decoder(&input_vec, &generator_matrix, 3);
+
+    match res {
+        Err((error_msg, results)) => {
+            println!("[DECODING ERROR]");
+            println!("[ERROR MESSAGE] - {}", error_msg);
+            if let Some(multiple_results) = results {
+                println!("[POSSIBLE ERRORS] - {:?}", multiple_results);
+            }
+        }
+        Ok((decoded, err_mask)) => {
+            println!("[DECODING SUCCESSFUL]");
+            println!("[DECODED MESSAGE] - {:?}", decoded);
+            if err_mask.len() == 0 {
+                println!("[NO ERROR WAS PRESENT]")
+            } else {
+                println!("[ERROR BITS] - {:?}", err_mask);
+            }
+        }
+    }
+
+    println!("-------------");
+
+    let generator_matrix = vec![
+        vec![1, 0, 0, 1, 0],
+        vec![0, 1, 0, 1, 1],
+        vec![0, 0, 1, 1, 0],
+    ];
+
+    let input_vec = vec![0, 1, 0, 0, 1];
+
+    let res = coding::decode::syndrome_decoder(&input_vec, &generator_matrix, 2);
+
+    match res {
+        Err((error_msg, results)) => {
+            println!("[DECODING ERROR]");
+            println!("[ERROR MESSAGE] - {}", error_msg);
+            if let Some(multiple_results) = results {
+                println!("[POSSIBLE ERRORS] - {:?}", multiple_results);
+            }
+        }
+        Ok((decoded, err_mask)) => {
+            println!("[DECODING SUCCESSFUL]");
+            println!("[DECODED MESSAGE] - {:?}", decoded);
+            if err_mask.len() == 0 {
+                println!("[NO ERROR WAS PRESENT]")
+            } else {
+                println!("[ERROR BITS] - {:?}", err_mask);
+            }
+        }
+    }
+
+    println!("-------------");
+
+    let generator_matrix = vec![
+        vec![1, 0, 0, 1, 0],
+        vec![0, 1, 0, 1, 1],
+        vec![0, 0, 1, 1, 0],
+    ];
+
+    let input_vec = vec![1, 0, 0, 0, 1];
+
+    let res = coding::decode::syndrome_decoder(&input_vec, &generator_matrix, 2);
+
+    match res {
+        Err((error_msg, results)) => {
+            println!("[DECODING ERROR]");
+            println!("[ERROR MESSAGE] - {}", error_msg);
+            if let Some(multiple_results) = results {
+                println!("[POSSIBLE ERRORS] - {:?}", multiple_results);
+            }
+        }
+        Ok((decoded, err_mask)) => {
+            println!("[DECODING SUCCESSFUL]");
+            println!("[DECODED MESSAGE] - {:?}", decoded);
+            if err_mask.len() == 0 {
+                println!("[NO ERROR WAS PRESENT]")
+            } else {
+                println!("[ERROR BITS] - {:?}", err_mask);
+            }
+        }
+    }
+
+    println!("-------------");
+
+    let generator_matrix = vec![
+        vec![
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        ],
+        vec![
+            0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0,
+        ],
+        vec![
+            0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1,
+        ],
+        vec![
+            0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1,
+        ],
+        vec![
+            0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1,
+        ],
+    ];
+
+    let input_vec = vec![
+        1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0,
+    ];
+
+    let res = coding::decode::syndrome_decoder(&input_vec, &generator_matrix, 2);
+
+    match res {
+        Err((error_msg, results)) => {
+            println!("[DECODING ERROR]");
+            println!("[ERROR MESSAGE] - {}", error_msg);
+            if let Some(multiple_results) = results {
+                println!("[POSSIBLE ERRORS] - {:?}", multiple_results);
+            }
+        }
+        Ok((decoded, err_mask)) => {
+            println!("[DECODING SUCCESSFUL]");
+            println!("[DECODED MESSAGE] - {:?}", decoded);
+            if err_mask.len() == 0 {
+                println!("[NO ERROR WAS PRESENT]")
+            } else {
+                println!("[ERROR BITS] - {:?}", err_mask);
+            }
+        }
+    }
+
+    println!("-------------");
+
+    let generator_matrix = vec![
+        vec![
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        ],
+        vec![
+            0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0,
+        ],
+        vec![
+            0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1,
+        ],
+        vec![
+            0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1,
+        ],
+        vec![
+            0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0,
+        ],
+        vec![
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1,
+        ],
+    ];
+
+    let input_vec = vec![
+        1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0,
+    ];
+
+    let res = coding::decode::syndrome_decoder(&input_vec, &generator_matrix, 2);
+
+    match res {
+        Err((error_msg, results)) => {
+            println!("[DECODING ERROR]");
+            println!("[ERROR MESSAGE] - {}", error_msg);
+            if let Some(multiple_results) = results {
+                println!("[POSSIBLE ERRORS] - {:?}", multiple_results);
+            }
+        }
+        Ok((decoded, err_mask)) => {
+            println!("[DECODING SUCCESSFUL]");
+            println!("[DECODED MESSAGE] - {:?}", decoded);
+            if err_mask.len() == 0 {
+                println!("[NO ERROR WAS PRESENT]")
+            } else {
+                println!("[ERROR BITS] - {:?}", err_mask);
+            }
+        }
     }
 }
