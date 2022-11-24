@@ -1,7 +1,10 @@
+#[macro_use]
+extern crate lazy_static;
+
+pub mod coding;
 mod errors;
 mod exponentiation;
 mod primality;
 mod rsa;
-pub mod coding;
 
 pub use rsa::*;

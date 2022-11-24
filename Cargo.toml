@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 rug = { version = "1.17", features = ["integer", "rand"] }
 rand = "0.8"
+lazy_static = "1.4.0"
